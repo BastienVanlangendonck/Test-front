@@ -12,96 +12,25 @@
     </div>
 
     <div class="row mb-4">
-      <div class="col-lg-2"></div>
-      <div class="col-lg-7">
-        <table class="table table-striped">
-          <thead class="thead-light">
-            <tr>
-              <th></th>
-              <th>Titres populaires</th>
-              <th></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-          <tr v-for="titre in titresPopulaires" :key="titre._id">
-            <td>
-              <img :src="titre.couverture" style="width: 30px;">
-            </td>
-            <td class="align-middle">
-              {{ titre.titre }}
-            </td>
-            <td class="text-right align-middle">
-              {{ secondsToMinutes( titre.dureeSecondes) }}
-            </td>
-            <td class="text-right align-middle">
-              {{titre.nombreEcoutes}}
-            </td>
-          </tr>
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="4" class="text-center">
-                <fa icon="add"></fa>
-                Afficher plus de titres
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+      
+      <ArtistPopularSong :titresPopulaires="this.titresPopulaires"></ArtistPopularSong>
+
     </div>
 
     <div class="row mb-4 border-bottom mb-4 pb-4">
-      <div class="col-lg-2">
-        <img src="http://localhost:8085/img/album/No-album-art.png" :alt="artist.prenom+' '+artist.nom" class="img-thumbnail">
-        <h5>
-          Intitulé de l'album
-          <span class="text-muted">05/11/2021</span>
-        </h5>
-      </div>
-      <div class="col-lg-7">
-        <table class="table">
-          <tbody>
-          <tr v-for="index in [0, 1 , 2, 4, 5, 6]" :key="index">
-            <td class="align-middle">
-              Titre de la chanson
-            </td>
-            <td class="text-right align-middle">
-              2:45
-            </td>
-            <td class="text-right align-middle">
-              1 548
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
+      
+      <ArtistAlbum :artist="this.artist" :titleNumber=[1,2,3,4,5,6]></ArtistAlbum>
+
     </div>
     <div class="row mb-4 border-bottom mb-4 pb-4">
-      <div class="col-lg-2">
-        <img src="http://localhost:8085/img/album/No-album-art.png" :alt="artist.prenom+' '+artist.nom" class="img-thumbnail">
-        <h5>
-          Intitulé de l'album
-          <span class="text-muted">05/11/2021</span>
-        </h5>
-      </div>
-      <div class="col-lg-7">
-        <table class="table">
-          <tbody>
-          <tr v-for="index in [0, 1 , 2, 4]" :key="index">
-            <td class="align-middle">
-              Titre de la chanson
-            </td>
-            <td class="text-right align-middle">
-              2:45
-            </td>
-            <td class="text-right align-middle">
-              1 548
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
+     
+      <ArtistAlbum :artist="this.artist" :titleNumber=[1,2,3,4]></ArtistAlbum>
+
+    </div>
+    <div class="row mb-4 border-bottom mb-4 pb-4">
+
+      <AlbumsList v-for="album in Albums" :album="album" :key="album._id"></AlbumsList>
+
     </div>
   </template>
 
@@ -114,17 +43,19 @@
 
 <script>
 import axios from 'axios';
-import FontAwesomeIcon from '../plugins/font-awesome';
 import ArtistDetails from './ArtistDetails.vue';
 import SimilarArtistList from './SimilarArtistList.vue';
+import ArtistPopularSong from './ArtistPopularSong.vue';
+import ArtistAlbum from './ArtistAlbum.vue';
+import AlbumsList from './AlbumsList.vue';
 
-// TODO : Séparer cette page monolithique en composants réutilisables
-// TODO : Afficher les titres des chansons avec une majucule sur la première lettre
-// TODO : formater les nombres d'écoutes pour les rendre plus facile à lire avec un séparateur de milliers
+// TODO : Séparer cette page monolithique en composants réutilisables - DONE
+// TODO : Afficher les titres des chansons avec une majucule sur la première lettre - DONE
+// TODO : formater les nombres d'écoutes pour les rendre plus facile à lire avec un séparateur de milliers - DONE
 // TODO : récupérer et ordonner les vrais titres les plus écoutés de l'artiste
 // TODO : afficher 5 ou 10 titres et changer le texte du bouton "Afficher plus de titres" en fonction de l'état
 // TODO : Afficher les albums par ordre chronologique de sortie décroissant en bas de page
-// TODO : Afficher la durée des musiques au format minutes:secondes
+// TODO : Afficher la durée des musiques au format minutes:secondes - DONE
 export default {
   name: "Artist",
   props: {
@@ -134,15 +65,19 @@ export default {
     }
   },
   components: {
-    fa: FontAwesomeIcon,
     ArtistDetails,
-    SimilarArtistList
+    SimilarArtistList,
+    ArtistPopularSong,
+    ArtistAlbum,
+    AlbumsList
   },
   data() {
     return {
       artist: null,
       artistsSimilaires: [],
-      titresPopulaires: []
+      titresPopulaires: [],
+      songsList: [],
+      Albums: []
     };
   },
   async mounted() {
@@ -151,7 +86,7 @@ export default {
     for (var i in response.data) {
       if(response.data[i]._id === this.id) {
         this.artist = response.data[i];
-        console.log(this.artist);
+        /* console.log(this.artist); */
       }
     }
 
@@ -159,18 +94,26 @@ export default {
     for (var j in response.data) {
       if(response.data[j].styleMusical === this.artist.styleMusical && response.data[j]._id !== this.artist._id) {
         this.artistsSimilaires.push(response.data[j]);
-        console.log(this.artistsSimilaires);
+        /* console.log(this.artistsSimilaires); */
       }
     }
 
+    this.Albums= [];
+    for (var k in this.artist.albums) {
+      this.Albums.push(response.data[k].albums);
+      console.log(this.Albums)
+    }
+
     this.titresPopulaires = this.mostListenedSongs();
+/*     
+    this.titresPopulaires = [];
+    for (var index in this.artist.albums) {
+    var songsList = this.artist.albums[index].musiques;
+    console.log(songsList)
+    } */
+
   },
   methods: {
-    secondsToMinutes(time) {
-      var minutes = Math.floor(time / 60);
-      var seconds = time- minutes * 60;
-      return minutes+":"+seconds;
-    },
 
     mostListenedSongs() {
       return [
