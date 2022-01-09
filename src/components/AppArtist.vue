@@ -42,6 +42,8 @@
 </template>
 
 <script>
+const _ = require('lodash/core');
+
 import axios from 'axios';
 import ArtistDetails from './ArtistDetails.vue';
 import SimilarArtistList from './SimilarArtistList.vue';
@@ -54,7 +56,7 @@ import AlbumsList from './AlbumsList.vue';
 // TODO : formater les nombres d'écoutes pour les rendre plus facile à lire avec un séparateur de milliers - DONE
 // TODO : récupérer et ordonner les vrais titres les plus écoutés de l'artiste
 // TODO : afficher 5 ou 10 titres et changer le texte du bouton "Afficher plus de titres" en fonction de l'état
-// TODO : Afficher les albums par ordre chronologique de sortie décroissant en bas de page
+// TODO : Afficher les albums par ordre chronologique de sortie décroissant en bas de page - DONE
 // TODO : Afficher la durée des musiques au format minutes:secondes - DONE
 export default {
   name: "Artist",
@@ -77,7 +79,8 @@ export default {
       artistsSimilaires: [],
       titresPopulaires: [],
       songsList: [],
-      Albums: []
+      Albums: [],
+      AlbumsDate: []
     };
   },
   async mounted() {
@@ -94,26 +97,34 @@ export default {
     for (var j in response.data) {
       if(response.data[j].styleMusical === this.artist.styleMusical && response.data[j]._id !== this.artist._id) {
         this.artistsSimilaires.push(response.data[j]);
-        /* console.log(this.artistsSimilaires); */
       }
     }
 
-    this.Albums= [];
+
+    this.AlbumsDate= [];
     for (var k in this.artist.albums) {
-      this.Albums.push(response.data[k].albums);
-      console.log(this.Albums)
+      const currentDate = this.artist.albums[k].dateSortie.split('T')[0];
+      this.AlbumsDate.push(currentDate)
     }
+    const SortedDates= _.sortBy(this.AlbumsDate).reverse();
+
+    this.Albums= [];
+    SortedDates.forEach((currentSortedDate) => {
+      for (var l in this.artist.albums) {
+        if (this.artist.albums[l].dateSortie.includes(currentSortedDate)) {
+          this.artist.albums[l].newDateFormat = currentSortedDate;
+          this.Albums.push(this.artist.albums[l]);
+        }
+      }
+    })
+
 
     this.titresPopulaires = this.mostListenedSongs();
-/*     
-    this.titresPopulaires = [];
-    for (var index in this.artist.albums) {
-    var songsList = this.artist.albums[index].musiques;
-    console.log(songsList)
-    } */
 
   },
   methods: {
+
+    
 
     mostListenedSongs() {
       return [
