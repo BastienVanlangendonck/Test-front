@@ -16,22 +16,9 @@
       <ArtistPopularSong :titresPopulaires="this.titresPopulaires"></ArtistPopularSong>
 
     </div>
-
-    <div class="row mb-4 border-bottom mb-4 pb-4">
       
-      <ArtistAlbum :artist="this.artist" :titleNumber=[1,2,3,4,5,6]></ArtistAlbum>
+      <ArtistAlbum v-for="album in Albums" :album="album" :artist="this.artist" :key="album._id"></ArtistAlbum>
 
-    </div>
-    <div class="row mb-4 border-bottom mb-4 pb-4">
-     
-      <ArtistAlbum :artist="this.artist" :titleNumber=[1,2,3,4]></ArtistAlbum>
-
-    </div>
-    <div class="row mb-4 border-bottom mb-4 pb-4">
-
-      <AlbumsList v-for="album in Albums" :album="album" :key="album._id"></AlbumsList>
-
-    </div>
   </template>
 
   <div class="d-flex justify-content-center" v-else>
@@ -49,7 +36,6 @@ import ArtistDetails from './ArtistDetails.vue';
 import SimilarArtistList from './SimilarArtistList.vue';
 import ArtistPopularSong from './ArtistPopularSong.vue';
 import ArtistAlbum from './ArtistAlbum.vue';
-import AlbumsList from './AlbumsList.vue';
 
 // TODO : Séparer cette page monolithique en composants réutilisables - DONE
 // TODO : Afficher les titres des chansons avec une majucule sur la première lettre - DONE
@@ -71,7 +57,6 @@ export default {
     SimilarArtistList,
     ArtistPopularSong,
     ArtistAlbum,
-    AlbumsList
   },
   data() {
     return {
@@ -89,7 +74,6 @@ export default {
     for (var i in response.data) {
       if(response.data[i]._id === this.id) {
         this.artist = response.data[i];
-        /* console.log(this.artist); */
       }
     }
 
