@@ -11,9 +11,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="titre in titresPopulaires" :key="titre._id">
+        <tr v-for="titre in topTen" :key="titre._id">
           <td>
             <img :src="titre.couverture" style="width: 30px" />
+            {{conslog(titre)}}
           </td>
           <td class="align-middle">
             {{ strUcFirst(titre.titre) }}
@@ -28,9 +29,9 @@
       </tbody>
       <tfoot>
         <tr>
-          <td colspan="4" class="text-center">
+          <td colspan="4" class="text-center" :onClick="handleClick">
             <fa icon="add"></fa>
-            Afficher plus de titres
+            <a class="more-title">Afficher plus de titres</a>
           </td>
         </tr>
       </tfoot>
@@ -47,12 +48,28 @@ export default {
     fa: FontAwesomeIcon,
   },
   props: {
-    titresPopulaires: {
-      type: Object,
+      topTen: {
+      type: Array,
+      required: true,
+    },
+      displayXSongs: {
+      type: Function,
       required: true,
     },
   },
   methods: {
+    handleClick(event) {
+      let value = null;
+      if (event.target.textContent === "Afficher plus de titres") {
+        value = 10;
+        event.target.textContent = "Afficher moins de titres";
+      }
+      else {
+        value = 5;
+        event.target.textContent = "Afficher plus de titres";
+      }
+      this.displayXSongs(value)
+    },
     secondsToMinutes(time) {
       var minutes = Math.floor(time / 60);
       var seconds = time - minutes * 60;
@@ -62,6 +79,10 @@ export default {
     strUcFirst(title) {
       return (title + "").charAt(0).toUpperCase() + title.substr(1);
     },
+
+    conslog(e) {
+      console.log(e)
+    }
   },
 };
 </script>

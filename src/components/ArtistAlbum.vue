@@ -62,3 +62,10 @@ export default {
   }
 };
 </script>
+
+
+<style scoped>
+  .col-lg-7 {
+    margin: 3.5rem;
+  }
+</style>

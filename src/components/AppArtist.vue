@@ -13,11 +13,15 @@
 
     <div class="row mb-4">
       
-      <ArtistPopularSong :titresPopulaires="this.titresPopulaires"></ArtistPopularSong>
+      <ArtistPopularSong :displayXSongs="this.displayXSongs" :topTen="this.topTen"></ArtistPopularSong>
 
     </div>
+
+    <div class="row">
       
       <ArtistAlbum v-for="album in Albums" :album="album" :artist="this.artist" :key="album._id"></ArtistAlbum>
+
+    </div>
 
   </template>
 
@@ -40,8 +44,8 @@ import ArtistAlbum from './ArtistAlbum.vue';
 // TODO : Séparer cette page monolithique en composants réutilisables - DONE
 // TODO : Afficher les titres des chansons avec une majucule sur la première lettre - DONE
 // TODO : formater les nombres d'écoutes pour les rendre plus facile à lire avec un séparateur de milliers - DONE
-// TODO : récupérer et ordonner les vrais titres les plus écoutés de l'artiste
-// TODO : afficher 5 ou 10 titres et changer le texte du bouton "Afficher plus de titres" en fonction de l'état
+// TODO : récupérer et ordonner les vrais titres les plus écoutés de l'artiste - DONE
+// TODO : afficher 5 ou 10 titres et changer le texte du bouton "Afficher plus de titres" en fonction de l'état - DONE
 // TODO : Afficher les albums par ordre chronologique de sortie décroissant en bas de page - DONE
 // TODO : Afficher la durée des musiques au format minutes:secondes - DONE
 export default {
@@ -65,7 +69,8 @@ export default {
       titresPopulaires: [],
       songsList: [],
       Albums: [],
-      AlbumsDate: []
+      AlbumsDate: [],
+      topTen: []
     };
   },
   async mounted() {
@@ -102,58 +107,38 @@ export default {
       }
     })
 
+    for (var m in this.Albums) {
+      for (var p in this.Albums[m].musiques) {
+        this.Albums[m].musiques[p].couverture = this.Albums[m].couverture
+      }
+      this.songsList.push(this.Albums[m].musiques);
+    }
 
-    this.titresPopulaires = this.mostListenedSongs();
+    const songs = [];
+    this.topTen= [];
+    this.songsList.forEach((currentAlbum) => {
+      for(const song in currentAlbum) {
+        songs.push(currentAlbum[song])
+      }
+      this.songsList = songs;
+    })
+
+    this.displayXSongs();
+
 
   },
   methods: {
 
-    
+     displayXSongs(x = 5) {
+      /* https://javascript.plainenglish.io/sorting-objects-39a3cc47f9fe */
+      const array = Object.entries(this.songsList).sort((a, b) => b[1].nombreEcoutes - a[1].nombreEcoutes)
+      const newArray = array.map((current) => current[1])
+      this.topTen = newArray.splice(0, x)
+    },
 
-    mostListenedSongs() {
-      return [
-        {
-          "_id": "618ae89fc40339e626d8dff2",
-          "numero": 0,
-          "titre": "reprehenderit in voluptate",
-          "dureeSecondes": 293,
-          "nombreEcoutes": 806453529,
-          "couverture": "http://localhost:8085/img/album/618ae89f89d64f81153d54c1.jpeg"
-        },
-        {
-          "_id": "618ae89ff18f04ae3de8ce14",
-          "numero": 1,
-          "titre": "minim",
-          "dureeSecondes": 231,
-          "nombreEcoutes": 129446587,
-          "couverture": "http://localhost:8085/img/album/618ae89f89d64f81153d54c1.jpeg"
-        },
-        {
-          "_id": "618ae89f771d425479ac8e65",
-          "numero": 2,
-          "titre": "tempor cupidatat",
-          "dureeSecondes": 239,
-          "nombreEcoutes": 741808849,
-          "couverture": "http://localhost:8085/img/album/618ae89f89d64f81153d54c1.jpeg"
-        },
-        {
-          "_id": "618ae89f506ca1120b835347",
-          "numero": 3,
-          "titre": "deserunt",
-          "dureeSecondes": 323,
-          "nombreEcoutes": 182839200,
-          "couverture": "http://localhost:8085/img/album/618ae89f89d64f81153d54c1.jpeg"
-        },
-        {
-          "_id": "618ae89f3cc86e1ea38d91f3",
-          "numero": 4,
-          "titre": "labore enim mollit",
-          "dureeSecondes": 270,
-          "nombreEcoutes": 374839288,
-          "couverture": "http://localhost:8085/img/album/618ae89f89d64f81153d54c1.jpeg"
-        }
-      ];
-    }
+    conslog(e) {
+      console.log(e)
+    },
   }
 };
 </script>
