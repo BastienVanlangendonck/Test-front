@@ -18,7 +18,7 @@
 <script>
 var lodash = require('lodash');
 /**
- * Afficher le nombre d'écoutes à la place du todo.
+ * Afficher le nombre d'écoutes à la place du todo. - DONE
  */
 
 export default {
