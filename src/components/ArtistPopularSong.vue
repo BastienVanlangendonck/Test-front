@@ -14,7 +14,6 @@
         <tr v-for="titre in topTen" :key="titre._id">
           <td>
             <img :src="titre.couverture" style="width: 30px" />
-            {{conslog(titre)}}
           </td>
           <td class="align-middle">
             {{ strUcFirst(titre.titre) }}
