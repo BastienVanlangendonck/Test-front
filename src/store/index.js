@@ -2,7 +2,7 @@ import { createStore } from "vuex";
 
 const store = createStore({
   state: {
-    artists: []
+    artists: [],
   },
   getters: {
      getArtists(state) {

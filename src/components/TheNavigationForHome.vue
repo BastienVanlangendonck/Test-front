@@ -26,8 +26,8 @@
               Trier
             </button>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="#">Nom (Croissant)</a>
-              <a class="dropdown-item" href="#">Nom (Decroissant)</a>
+              <a class="dropdown-item" v-on:click="NameOrderAsc()" href='#'>Nom (Croissant)</a>
+              <a class="dropdown-item" v-on:click="NameOrderDesc()">Nom (Decroissant)</a>
               <div role="separator" class="dropdown-divider"></div>
               <a class="dropdown-item" href="#">Age (Croissant)</a>
               <a class="dropdown-item" href="#">Age (Decroissant)</a>
@@ -50,21 +50,39 @@
     </div>
   </nav>
   <!--  Prendre en compte les filtres pour afficher seulement les artistes correspondants à la recherche-->
-  <div class="row" v-if="artists.length">
+
+      <div class="row" v-if="nameDesc">
     <!--  Ajouter les informations de nombre d'écoute-->
     <ArtistCardForHome
-      v-for="r in resultQuery"
-      :artist="r"
-      :key="r._id"
+      v-for="artist in NameOrderDesc()"
+      :artist="artist"
+      :key="artist._id"
     ></ArtistCardForHome>
   </div>
-  <div class="alert alert-secondary" role="alert" v-else>
-    Aucun artiste ne correspond à vos critères...
+
+  <div class="row" v-if="nameAsc">
+    <!--  Ajouter les informations de nombre d'écoute-->
+    <ArtistCardForHome
+      v-for="artist in NameOrderAsc()"
+      :artist="artist"
+      :key="artist._id"
+    ></ArtistCardForHome>
+  </div>
+
+
+
+  <div class="row" v-else>
+    <ArtistCardForHome
+      v-for="artist in resultQuery"
+      :artist="artist"
+      :key="artist._id"
+    ></ArtistCardForHome>
   </div>
 </template>
 
 <script>
 import ArtistCardForHome from "./ArtistCardForHome.vue";
+const collect = require('collect.js');
 export default {
   name: "TheNavigationForHome",
   props: {
@@ -78,10 +96,12 @@ export default {
   },
   data() {
     return {
+      isSortedBy: "",
       searchQuery: null,
-      FilteredDAta: [],
+      FilteredData: [],
     };
   },
+
   computed: {
     resultQuery() {
       if (this.searchQuery) {
@@ -99,12 +119,55 @@ export default {
         return this.artists;
       }
     },
+
+    nameAsc() {
+      return this.resultQuery.length && this.isSortedBy === "NameAsc" 
+    },
+
+    nameDesc() {
+      return this.resultQuery.length && this.isSortedBy === "nameDesc" 
+    }
+
+
   },
   methods: {
     conslog(e) {
       console.log(e);
     },
-  },
+    
+    NameOrderAsc() {
+        this.isSortedBy = ""
+        this.isSortedBy = "NameAsc"
+        this.FilteredData= collect([]);
+        this.reshearch= [];
+        for (var i in this.resultQuery) {
+        this.reshearch.push(this.resultQuery[i])
+        }
+        for (var j in this.reshearch){
+          this.FilteredData.push(this.reshearch[j])
+        }
+        const sortedNames = this.FilteredData.sortBy('nom');
+        sortedNames.all();
+        return sortedNames.items;
+      },
+
+      NameOrderDesc() {
+        this.isSortedBy = ""
+        this.isSortedBy = "NameDesc"
+        this.FilteredData= collect([]);
+        this.reshearch= [];
+        for (var i in this.resultQuery) {
+        this.reshearch.push(this.resultQuery[i])
+        }
+        for (var j in this.reshearch){
+          this.FilteredData.push(this.reshearch[j])
+        }
+        const sortedNamesDesc = this.FilteredData.sortByDesc('nom');
+        sortedNamesDesc.all();
+        console.log(sortedNamesDesc.items)
+        return sortedNamesDesc.items;
+      },
+    },
 };
 </script>
 

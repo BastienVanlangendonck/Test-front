@@ -125,12 +125,6 @@ export default {
 
     this.displayXSongs();
 
-/*     this.nbrEcoute = [];
-    for (var q in this.songsList) {
-      this.nbrEcoute.push(this.songsList[q].nombreEcoutes)
-    } */
-
-
   },
   methods: {
 
