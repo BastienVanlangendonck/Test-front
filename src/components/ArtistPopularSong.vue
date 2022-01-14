@@ -57,7 +57,7 @@ export default {
     },
   },
   methods: {
-    handleClick(event) {
+    handleClick(event) { /* Gestionnaire de click ou on va appeler notre fonction de display a chaque click, tout dependant du text sur le quel on va cliquer */
       let value = null;
       if (event.target.textContent === "Afficher plus de titres") {
         value = 10;
@@ -78,10 +78,6 @@ export default {
     strUcFirst(title) {
       return (title + "").charAt(0).toUpperCase() + title.substr(1);
     },
-
-    conslog(e) {
-      console.log(e)
-    }
   },
 };
 </script>

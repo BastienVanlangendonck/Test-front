@@ -12,7 +12,7 @@ const store = createStore({
 
     getSortingArray(state) {
       return state.sortingArray;
-    }
+    },
 
   },
   mutations: {
@@ -30,7 +30,7 @@ const store = createStore({
       }
       
       state.sortingArray = SortingArray;
-    }
+    },
   },
   strict: true
 });

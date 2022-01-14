@@ -43,21 +43,17 @@ export default {
     },
  
     methods: {
-      setDate() {
+      setDate() { /* Function permettant de modifier l'ordre de retour de la date  */
       const [year, month, day] = this.album.newDateFormat.split('-');
       return `${day}/${month}/${year}`;
     },
-      secondsToMinutes(time) {
+      secondsToMinutes(time) { /* Function qui permet de convertir les secondes en minutes */
       var minutes = Math.floor(time / 60);
       var seconds = time - minutes * 60;
       return minutes + ":" + seconds;
     },
-      strUcFirst(title) {
+      strUcFirst(title) { /* Function qui permet de mettre une majuscule */
       return (title + "").charAt(0).toUpperCase() + title.substr(1);
-    },
-
-    conslog(t) {
-      console.log(t)
     },
   }
 };
