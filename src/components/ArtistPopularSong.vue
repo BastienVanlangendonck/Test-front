@@ -29,7 +29,6 @@
       <tfoot>
         <tr>
           <td colspan="4" class="text-center" :onClick="handleClick">
-            <fa icon="add"></fa>
             <a class="more-title">Afficher plus de titres</a>
           </td>
         </tr>
@@ -39,13 +38,9 @@
 </template>
 
 <script>
-import FontAwesomeIcon from "../plugins/font-awesome";
 
 export default {
   name: "ArtistPopularSong",
-  components: {
-    fa: FontAwesomeIcon,
-  },
   props: {
       topTen: {
       type: Array,
