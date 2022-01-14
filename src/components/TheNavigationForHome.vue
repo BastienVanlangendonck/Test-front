@@ -16,7 +16,7 @@
       <form class="form-inline">
         <div class="input-group mb-1">
           <div class="input-group-prepend">
-            <button
+             <button
               class="btn btn-outline-secondary dropdown-toggle"
               type="button"
               data-toggle="dropdown"
@@ -26,16 +26,14 @@
               Trier
             </button>
             <div class="dropdown-menu">
-              <a class="dropdown-item" v-on:click="NameOrderAsc()" href='#'>Nom (Croissant)</a>
-              <a class="dropdown-item" v-on:click="NameOrderDesc()">Nom (Decroissant)</a>
+              <a class="dropdown-item" v-on:click="handleSortingClick" data-sort="name-asc">Nom (Croissant)</a>
+              <a class="dropdown-item" v-on:click="handleSortingClick" data-sort="name-desc">Nom (Decroissant)</a>
               <div role="separator" class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Age (Croissant)</a>
-              <a class="dropdown-item" href="#">Age (Decroissant)</a>
+              <a class="dropdown-item" v-on:click="handleSortingClick" data-sort="age-asc">Age (Croissant)</a>
+              <a class="dropdown-item" v-on:click="handleSortingClick" data-sort="age-desc">Age (Decroissant)</a>
               <div role="separator" class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Nombre d'écoutes (Croissant)</a>
-              <a class="dropdown-item" href="#"
-                >Nombre d'écoutes (Decroissant)</a
-              >
+              <a class="dropdown-item" v-on:click="handleSortingClick" data-sort="listen-asc">Nombre d'écoutes (Croissant)</a>
+              <a class="dropdown-item" v-on:click="handleSortingClick" data-sort="listen-desc">Nombre d'écoutes (Decroissant)</a>
             </div>
           </div>
         </div>
@@ -50,38 +48,11 @@
     </div>
   </nav>
   <!--  Prendre en compte les filtres pour afficher seulement les artistes correspondants à la recherche-->
-
-      <div class="row" v-if="nameDesc">
-    <!--  Ajouter les informations de nombre d'écoute-->
-    <ArtistCardForHome
-      v-for="artist in NameOrderDesc()"
-      :artist="artist"
-      :key="artist._id"
-    ></ArtistCardForHome>
-  </div>
-
-  <div class="row" v-if="nameAsc">
-    <!--  Ajouter les informations de nombre d'écoute-->
-    <ArtistCardForHome
-      v-for="artist in NameOrderAsc()"
-      :artist="artist"
-      :key="artist._id"
-    ></ArtistCardForHome>
-  </div>
-
-
-
-  <div class="row" v-else>
-    <ArtistCardForHome
-      v-for="artist in resultQuery"
-      :artist="artist"
-      :key="artist._id"
-    ></ArtistCardForHome>
-  </div>
+    <SortedCards :conditions="this.sortingCondition" :resultQuery="resultQuery" :resultQueryFilter="resultQueryFilter" :sortingArray="this.sortingArray" />
 </template>
 
 <script>
-import ArtistCardForHome from "./ArtistCardForHome.vue";
+import SortedCards from "./SortedCards.vue";
 const collect = require('collect.js');
 export default {
   name: "TheNavigationForHome",
@@ -92,19 +63,22 @@ export default {
     },
   },
   components: {
-    ArtistCardForHome,
+    SortedCards,
   },
   data() {
     return {
-      isSortedBy: "",
+      isFiltered: false,
+      sortingCondition: '',
+      sortingArray: [],
       searchQuery: null,
       FilteredData: [],
+      testData: []
     };
   },
 
   computed: {
     resultQuery() {
-      if (this.searchQuery) {
+      if (this.searchQuery && !this.isFiltered) {
         return this.artists.filter((item) => {
           return this.searchQuery
             .toLowerCase()
@@ -120,40 +94,64 @@ export default {
       }
     },
 
-    nameAsc() {
-      return this.resultQuery.length && this.isSortedBy === "NameAsc" 
-    },
-
-    nameDesc() {
-      return this.resultQuery.length && this.isSortedBy === "nameDesc" 
-    }
-
-
+     resultQueryFilter() {
+       if (this.searchQuery && this.isFiltered) {
+         return this.sortingArray.filter((item) => {
+          return this.searchQuery
+            .toLowerCase()
+            .split(" ")
+            .every(
+              (v) =>
+                item.prenom.toLowerCase().includes(v) ||
+                item.nom.toLowerCase().includes(v)
+            );
+        });
+      } return this.sortingArray
+    } 
   },
+
   methods: {
     conslog(e) {
       console.log(e);
     },
-    
-    NameOrderAsc() {
-        this.isSortedBy = ""
-        this.isSortedBy = "NameAsc"
-        this.FilteredData= collect([]);
-        this.reshearch= [];
-        for (var i in this.resultQuery) {
-        this.reshearch.push(this.resultQuery[i])
-        }
-        for (var j in this.reshearch){
-          this.FilteredData.push(this.reshearch[j])
-        }
-        const sortedNames = this.FilteredData.sortBy('nom');
-        sortedNames.all();
-        return sortedNames.items;
-      },
 
-      NameOrderDesc() {
-        this.isSortedBy = ""
-        this.isSortedBy = "NameDesc"
+    handleSortingClick(event) {
+      const sort = event.target.dataset.sort;
+      this.sortingCondition = sort;
+
+      if (sort === 'name-asc') {
+        this.sortingArray = this.NameOrderAsc();
+        this.$store.commit('setSortingArray', this.sortingArray)
+        this.isFiltered = true
+      }
+      else if (sort === 'name-desc') {
+        this.sortingArray = this.NameOrderDesc();
+        this.$store.commit('setSortingArray', this.sortingArray)
+        this.isFiltered = true
+      }
+      else if (sort === 'age-asc') {
+        this.sortingArray = this.AgeOrderAsc();
+        this.$store.commit('setSortingArray', this.sortingArray)
+        this.isFiltered = true
+      }
+      else if (sort === 'age-desc') {
+        this.sortingArray = this.AgeOrderDesc();
+        this.$store.commit('setSortingArray', this.sortingArray)
+        this.isFiltered = true
+      }
+      else if (sort === 'listen-asc') {
+        this.sortingArray = this.ListenOrderAsc();
+        this.$store.commit('setSortingArray', this.sortingArray)
+        this.isFiltered = true
+      }
+      else if (sort === 'listen-desc') {
+        this.sortingArray = this.ListenOrderDesc();
+        this.$store.commit('setSortingArray', this.sortingArray)
+        this.isFiltered = true
+      }
+    },
+    
+    FilteredArray() {
         this.FilteredData= collect([]);
         this.reshearch= [];
         for (var i in this.resultQuery) {
@@ -162,12 +160,46 @@ export default {
         for (var j in this.reshearch){
           this.FilteredData.push(this.reshearch[j])
         }
-        const sortedNamesDesc = this.FilteredData.sortByDesc('nom');
-        sortedNamesDesc.all();
-        console.log(sortedNamesDesc.items)
-        return sortedNamesDesc.items;
-      },
+        return this.FilteredData
+    },  
+
+    NameOrderAsc() {
+      const sortedNamesAsc = this.FilteredArray().sortBy('nom');
+      sortedNamesAsc.all();
+      return sortedNamesAsc.items;
     },
+
+    NameOrderDesc() {
+      const sortedNamesDesc = this.FilteredArray().sortByDesc('nom');
+      sortedNamesDesc.all();
+      console.log(sortedNamesDesc.items)
+      return sortedNamesDesc.items;
+    },
+
+    AgeOrderAsc() {
+      const sortedAgeAsc = this.FilteredArray().sortBy('age');
+      sortedAgeAsc.all();
+      return sortedAgeAsc.items;
+    },
+
+    AgeOrderDesc() {
+      const sortedAgeDesc = this.FilteredArray().sortByDesc('age');
+      sortedAgeDesc.all();
+      return sortedAgeDesc.items;
+    },
+
+    ListenOrderAsc() {
+      const sortedListenAsc = this.FilteredArray().sortBy('nombreEcoutes');
+      sortedListenAsc.all();
+      return sortedListenAsc.items;
+    },
+
+    ListenOrderDesc() {
+      const sortedListenDesc = this.FilteredArray().sortByDesc('nombreEcoutes');
+      sortedListenDesc.all();
+      return sortedListenDesc.items;
+    },
+  },
 };
 </script>
 
